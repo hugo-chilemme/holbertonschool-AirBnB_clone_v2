@@ -1,0 +1,5 @@
+create State name="California"
+create City state_id="0001" name="San Francisco is super cool"
+show City 0001
+    
+
