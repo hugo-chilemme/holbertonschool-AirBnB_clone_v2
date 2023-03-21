@@ -24,6 +24,7 @@ class FileStorage:
         self.all().update({obj.to_dict()['__class__'] + '.' + obj.id: obj})
 
     def delete(self, obj):
+        """Delete object in a dictonnary"""
         if obj is None:
             return
         classe = obj.to_dict()['__class__']
