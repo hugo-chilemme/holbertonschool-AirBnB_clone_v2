@@ -8,6 +8,7 @@ class Place(BaseModel, Base):
     """places"""
     
     __tablename__ = "places"
+    
     reviews = relationship("Review", backref="place", cascade="all, delete-orphan")
 
     if models.storage_type == "db":

@@ -6,6 +6,7 @@ from models.base import Base, BaseModel
 
 class Review(BaseModel, Base):
     """review"""
+    
     __tablename__ = "reviews"
     
     text = Column(String(1024), nullable=False)
