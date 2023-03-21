@@ -158,9 +158,8 @@ class HBNBCommand(cmd.Cmd):
         for _, element in enumerate(args):
             key = element
             value = args[element]
-            # 
+
             # IS A STRING VALUE
-            # 
             if type(value) is str:
                 value = value.replace("_", " ")
             setattr(new_instance, key, value)
