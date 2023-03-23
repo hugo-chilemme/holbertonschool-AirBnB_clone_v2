@@ -4,6 +4,8 @@ from models.base_model import BaseModel
 from models.base_model import Base
 
 from sqlalchemy import Column, String, ForeignKey, Integer, Float
+from sqlalchemy.orm import relationship
+
 
 class Place(BaseModel, Base):
     """ A place to stay """
