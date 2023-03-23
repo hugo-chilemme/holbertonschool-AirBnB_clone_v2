@@ -15,7 +15,7 @@ class BaseModel:
     
     def __init__(self, *args, **kwargs):
         """Instatntiates a new model"""
-        if not kwargs:
+        if not kwargs or '__class__' not in kwargs.keys():
             from models import storage
             self.id = str(uuid.uuid4())
             self.created_at = datetime.now()
@@ -50,6 +50,8 @@ class BaseModel:
         """Convert instance into dict format"""
         dictionary = {}
         dictionary.update(self.__dict__)
+        if dictionary.get('_sa_instance_state') is not None:
+            del dictionary['_sa_instance_state']
         dictionary.update({'__class__':
                           (str(type(self)).split('.')[-1]).split('\'')[0]})
         dictionary['created_at'] = self.created_at.isoformat()
