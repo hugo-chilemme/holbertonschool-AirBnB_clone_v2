@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-import console
 import inspect
 import io
 import sys
@@ -8,11 +7,37 @@ import shutil
 import os
 
 """
+ Cleanup file storage
+"""
+file_path = "file.json"
+if not os.path.exists(file_path):
+    try:
+        from models.engine.file_storage import FileStorage
+        file_path = FileStorage._FileStorage__file_path
+    except:
+        pass
+if os.path.exists(file_path):
+    os.remove(file_path)
+
+"""
  Backup console file
 """
 if os.path.exists("tmp_console_main.py"):
     shutil.copy("tmp_console_main.py", "console.py")
 shutil.copy("console.py", "tmp_console_main.py")
+
+"""
+ Backup models/__init__.py file
+"""
+if os.path.exists("models/tmp__init__.py"):
+    shutil.copy("models/tmp__init__.py", "models/__init__.py")
+shutil.copy("models/__init__.py", "models/tmp__init__.py")
+
+"""
+ Overwrite models/__init__.py file with switch_to_file_storage.py
+"""
+if os.path.exists("switch_to_file_storage.py"):
+    shutil.copy("switch_to_file_storage.py", "models/__init__.py")
 
 
 """
@@ -27,10 +52,11 @@ with open("tmp_console_main.py", "r") as file_i:
                 in_main = True
             elif in_main:
                 if "cmdloop" not in line:
-                    file_o.write(line.lstrip("    "))
+                    file_o.write(line.lstrip("    ")) 
             else:
                 file_o.write(line)
 
+import console
 
 """
  Create console
@@ -43,13 +69,10 @@ for name, obj in inspect.getmembers(console):
 my_console = console_obj(stdout=io.StringIO(), stdin=io.StringIO())
 my_console.use_rawinput = False
 
-
 """
  Exec command
 """
-
-
-def exec_command(my_console, the_command, last_lines=1):
+def exec_command(my_console, the_command, last_lines = 1):
     my_console.stdout = io.StringIO()
     real_stdout = sys.stdout
     sys.stdout = my_console.stdout
@@ -58,24 +81,17 @@ def exec_command(my_console, the_command, last_lines=1):
     lines = my_console.stdout.getvalue().split("\n")
     return "\n".join(lines[(-1*(last_lines+1)):-1])
 
-
 """
  Tests
 """
-result = exec_command(my_console, "all Amenity", 4)
-print(result)
+result = exec_command(my_console, "create State")
 if result is None or result == "":
-    print("FAIL: No amenities retrieved")
-print("my_id_0" not in result, "my_name_0" not in result)
-if "my_id_0" not in result or "my_name_0" not in result:
-    print("FAIL: Missing information 0")
-if "my_id_1" not in result or "my_name_1" not in result:
-    print("FAIL: Missing information 1")
-if "my_id_2" not in result or "my_name_2" not in result:
-    print("FAIL: Missing information 2")
-if "my_id_3" not in result or "my_name_3" not in result:
-    print("FAIL: Missing information 3")
+    print("FAIL: No ID retrieved")
+with open(file_path, "r") as file:
+    s_file = file.read()
+    if result not in s_file:
+        print("FAIL: New ID not in the JSON file")
+print("OK", end="")
 
-print("OK\n", end="")
-
-# shutil.copy("tmp_console_main.py", "console.py")
+shutil.copy("tmp_console_main.py", "console.py")
+shutil.copy("models/tmp__init__.py", "models/__init__.py")
