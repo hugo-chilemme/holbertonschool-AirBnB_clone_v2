@@ -45,8 +45,6 @@ class Place(BaseModel, Base):
                              viewonly=False, back_populates="place_amenities")
     amenity_ids = []
 
-
-    
     @property
     def reviews(self):
         from models.review import Review
