@@ -157,10 +157,12 @@ class HBNBCommand(cmd.Cmd):
         for _, element in enumerate(args):
             key = element
             value = args[element]
+
             # IS A STRING VALUE
             if type(value) is str:
                 value = value.replace("_", " ")
             setattr(new_instance, key, value)
+
         storage.new(new_instance)
         storage.save()
         print(new_instance.id)
@@ -245,6 +247,7 @@ class HBNBCommand(cmd.Cmd):
             if args not in HBNBCommand.classes:
                 print("** class doesn't exist **")
                 return
+
             for k, v in storage.all(HBNBCommand.classes[args]).items():
                 if k.split('.')[0] == args:
                     print_list.append(str(v))
@@ -381,3 +384,7 @@ class HBNBCommand(cmd.Cmd):
                 args.append(parts[i])
                 i += 1
         return args
+
+
+if __name__ == '__main__':
+    HBNBCommand().cmdloop()

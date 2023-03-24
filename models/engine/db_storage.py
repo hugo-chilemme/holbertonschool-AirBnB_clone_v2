@@ -8,6 +8,7 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from models.base_model import BaseModel
 from models.base_model import Base
 
+
 class DBStorage:
     __engine = None
     __session = None
@@ -18,20 +19,23 @@ class DBStorage:
         host = os.getenv("HBNB_MYSQL_HOST", default="localhost")
         db = os.getenv("HBNB_MYSQL_DB")
 
-        self.__engine = create_engine(f"mysql+mysqldb://{user}:{pwd}@{host}/{db}",
-                                      pool_pre_ping=True)
+        self.__engine = create_engine("mysql+mysqldb://{}:{}@{}/{}".format(
+            user,
+            pwd,
+            host
+            db
+        ), pool_pre_ping=True)
         if os.getenv("HBNB_ENV") == "test":
             Base.metadata.drop_all(self.__engine)
-        
 
     def all(self, cls=None):
         objects = {}
 
-
         if cls:
             query = self.__session.query(cls)
         else:
-            query = self.__session.query(User, State, City, Amenity, Place, Review)
+            query = self.__session.query(
+                User, State, City, Amenity, Place, Review)
         for obj in query:
             key = "{}.{}".format(obj.__class__.__name__, obj.id)
             objects[key] = obj
@@ -49,8 +53,8 @@ class DBStorage:
             self.__session.delete(obj)
 
     def reload(self):
-        
-        Base.metadata.create_all(self.__engine)
-        session_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
-        self.__session = scoped_session(session_factory)
 
+        Base.metadata.create_all(self.__engine)
+        session_factory = sessionmaker(
+            bind=self.__engine, expire_on_commit=False)
+        self.__session = scoped_session(session_factory)

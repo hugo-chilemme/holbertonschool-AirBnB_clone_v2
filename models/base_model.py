@@ -7,12 +7,14 @@ from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.orm import declarative_base
 Base = declarative_base()
 
+
 class BaseModel:
     """A base class for all hbnb models"""
     id = Column(String(60), primary_key=True, nullable=False)
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
+    updated_at = Column(DateTime, nullable=False,
+                        default=datetime.utcnow, onupdate=datetime.utcnow)
+
     def __init__(self, *args, **kwargs):
         """Instatntiates a new model"""
         if not kwargs or '__class__' not in kwargs.keys():
@@ -27,16 +29,13 @@ class BaseModel:
                                                      '%Y-%m-%dT%H:%M:%S.%f')
             del kwargs['__class__']
             self.__dict__.update(kwargs)
-        
 
     def __str__(self):
         '''function str'''
         d = self.to_dict().copy()
-        
-        if d['_sa_instance_state']:
+        if d.get('_sa_instance_state') is not None:
             del d['_sa_instance_state']
         del d['__class__']
-            
         return "[{}] ({}) {}".format(type(self).__name__, self.id, d)
 
     def save(self):
