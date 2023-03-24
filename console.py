@@ -121,9 +121,9 @@ class HBNBCommand(cmd.Cmd):
         cache_key = ""
         for arg in arguments:
             if cache_key == "":
-                key = arg.split('=')[0];
-                args[key] = "";
-                value = arg.split('=')[1];
+                key = arg.split('=')[0]
+                args[key] = ""
+                value = arg.split('=')[1]
                 if value[0] == '"':
                     value = value[1:]
                     cache_key = key
@@ -144,16 +144,15 @@ class HBNBCommand(cmd.Cmd):
                 if arg[-1:] == '"':
                     value = value[:-1]
                     cache_key = ""
-                args[key] += " {}".format(value);
-        
-        
+                args[key] += " {}".format(value)
+
         if not classe:
             print("** class name missing **")
             return
         elif classe not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-        
+
         new_instance = HBNBCommand.classes[classe]()
         for _, element in enumerate(args):
             key = element
@@ -163,8 +162,7 @@ class HBNBCommand(cmd.Cmd):
             if type(value) is str:
                 value = value.replace("_", " ")
             setattr(new_instance, key, value)
-            
-        storage.new(new_instance)    
+        storage.new(new_instance)
         storage.save()
         print(new_instance.id)
 
@@ -248,7 +246,6 @@ class HBNBCommand(cmd.Cmd):
             if args not in HBNBCommand.classes:
                 print("** class doesn't exist **")
                 return
-        
             for k, v in storage.all(HBNBCommand.classes[args]).items():
                 if k.split('.')[0] == args:
                     print_list.append(str(v))
@@ -362,7 +359,7 @@ class HBNBCommand(cmd.Cmd):
         """ Help information for the update class """
         print("Updates an object with new information")
         print("Usage: update <className> <id> <attName> <attVal>\n")
-        
+
     def parse(self, line):
         """
         Parse the input line into command and arguments
