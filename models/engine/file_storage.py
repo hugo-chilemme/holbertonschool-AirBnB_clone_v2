@@ -12,7 +12,7 @@ class FileStorage:
         """Returns a dictionary of models currently in storage"""
         if cls is None:
             return FileStorage.__objects
-        
+
         callback = {}
         for value in FileStorage.__objects:
             if value.split('.')[0] == cls.__name__:
@@ -30,7 +30,6 @@ class FileStorage:
         classe = obj.to_dict()['__class__']
         del FileStorage.__objects[classe+"."+obj.id]
         self.save()
-
 
     def save(self):
         """Saves storage dictionary to file"""
