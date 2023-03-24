@@ -33,7 +33,7 @@ class BaseModel:
         '''function str'''
         d = self.to_dict().copy()
         
-        if d['_sa_instance_state']:
+        if d.get('_sa_instance_state') is not None:
             del d['_sa_instance_state']
         del d['__class__']
             
