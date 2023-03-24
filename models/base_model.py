@@ -20,10 +20,9 @@ class BaseModel:
         """Instatntiates a new model"""
         self.created_at = datetime.now()
         self.updated_at = datetime.now()
-        if not kwargs:
-            from models import storage
-            self.id = str(uuid.uuid4())
-        else:
+        self.id = str(uuid.uuid4())
+        
+        if kwargs:
             if kwargs.get('updated_at') is not None:
                 kwargs['updated_at'] = datetime.strptime(kwargs['updated_at'],
                                                      '%Y-%m-%dT%H:%M:%S.%f')
