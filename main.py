@@ -32,5 +32,4 @@ p1.amenities.append(a2)
 p2.amenities.append(a1)
 p2.amenities.append(a2)
 p2.amenities.append(a3)
-
 storage.save()

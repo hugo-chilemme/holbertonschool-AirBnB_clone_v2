@@ -45,30 +45,30 @@ class Place(BaseModel, Base):
                              viewonly=False, back_populates="place_amenities")
     amenity_ids = []
 
+
+    
     @property
     def reviews(self):
-        """Retourne une liste des avis associés à un lieu."""
-        from models import storage
         from models.review import Review
+        from models import storage
         my_list = []
-        for review in storage.all(Review).values():
-            if self.id == review.place_id:
-                my_list.append(review)
+        for i in storage.all(Review):
+            if self.id == i.place_id:
+                my_list.append(i)
         return my_list
 
     @property
     def amenities(self):
-        """Retourne une liste des équipements disponibles dans un lieu."""
         from models import storage
         from models.amenity import Amenity
         my_list = []
-        for amenity in storage.all(Amenity).values():
-            if amenity.id in self.amenity_ids:
-                my_list.append(amenity)
+        for i in storage.all(Amenity).values():
+            if i.id in self.amenity_ids:
+                my_list.append(i)
         return my_list
 
     @amenities.setter
     def amenities(self, value):
-        """Définit les équipements disponibles dans un lieu."""
-        if isinstance(value, Amenity):
+        from models.amenity import Amenity
+        if type(value) == Amenity:
             self.amenity_ids.append(value.id)
