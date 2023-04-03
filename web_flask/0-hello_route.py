@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+""" Create server with default main page """
 from flask import Flask
 
 app = Flask(__name__)
