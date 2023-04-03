@@ -28,7 +28,7 @@ def display_python_is(text="is cool"):
 
 @app.route('/number/<int:n>', strict_slashes=False)
 def display_number(n):
-    return str(n)
+    return str(n) + " is a number"
 
 
 if __name__ == '__main__':
