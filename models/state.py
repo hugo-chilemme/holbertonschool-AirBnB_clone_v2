@@ -17,7 +17,8 @@ class State(BaseModel, Base):
     @property
     def cities(self):
         from models import storage
+        from models.city import City
         my_list = []
-        for i in storage.all(State).values():
+        for i in storage.all(City).values():
             my_list.append(i)
         return my_list
