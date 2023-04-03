@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """ Create server with default main page """
-from flask import Flask, render_template
+from flask import Flask
+from flask import render_template
 
 app = Flask("hbnb_server")
 
