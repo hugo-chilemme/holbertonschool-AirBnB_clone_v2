@@ -68,4 +68,3 @@ class FileStorage:
     def close(self):
         """Reloading system"""
         FileStorage.__objects = {}
-        self.reload()
