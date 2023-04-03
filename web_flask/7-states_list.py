@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 """ Create server with default main page """
 from flask import Flask, render_template
-from models import storage 
+from models import storage
 
 app = Flask(__name__)
 
@@ -16,6 +16,7 @@ def index():
 def afterRequest(self):
     storage.close()
 
+
 @app.route("/states_list", strict_slashes=False)
 def states_list():
     """def states_list"""
@@ -23,7 +24,7 @@ def states_list():
     states = []
     for state in storage.all(State).values():
         states.append(state.to_dict())
-    
+
     return render_template('7-states_list.html', states=states)
 
 
