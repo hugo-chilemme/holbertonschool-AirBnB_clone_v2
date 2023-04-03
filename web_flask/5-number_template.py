@@ -1,50 +1,68 @@
 #!/usr/bin/python3
-""" Create server with default main page """
-
-
+"""
+    Create flask application instance (app)
+"""
 from flask import Flask
+from markupsafe import escape
 from flask import render_template
 
-
-app = Flask("hbnb_server")
-
-
-@app.route('/', strict_slashes=False)
-def hello_hbnb():
-    """When the user access to the main page"""
-    return 'Hello HBNB!'
+app = Flask(__name__)
 
 
-@app.route('/hbnb', strict_slashes=False)
-def print_hbnb():
-    """When the user access to the /hbnb"""
-    return 'HBNB'
+@app.route("/", strict_slashes=False)
+def hello():
+    """
+        Response to request main URL "/" or not in @app.route()
+    """
+    return "Hello HBNB!"
 
 
-@app.route('/c/<text>', strict_slashes=False)
-def print_c_is(text):
-    """When the user access to the /c/<text>"""
-    return "C " + text.replace('_', ' ')
+@app.route("/hbnb", strict_slashes=False)
+def hbnb():
+    """
+        Response to request URL "/hbnb" or "/hbnb/" in @app.route()
+    """
+    return "HBNB"
 
 
-@app.route('/python/', strict_slashes=False)
-@app.route('/python/<text>', strict_slashes=False)
-def print_python_is(text="is cool"):
-    """When the user access to the /python/[<text>]"""
-    return "Python " + text.replace('_', ' ')
+@app.route("/c/<text>", strict_slashes=False)
+def C_text(text):
+    """
+        Response to request URL "c/<text>" in @app.route()
+        display C follow by the value of text
+    """
+    new_text = escape(text).replace("_", " ")
+    return f"C {new_text}"
 
 
-@app.route('/number/<int:n>', strict_slashes=False)
-def display_number(n):
-    """When the user access to the /number/<int:n>"""
-    return str(n) + " is a number"
+@app.route("/python/", defaults={'text': 'is cool'})
+@app.route("/python/<text>", strict_slashes=False)
+def Python_text(text):
+    """
+        Response to request URL "python/<text>" in @app.route()
+        display Python follow by the value of text or 'is cool' if no text
+    """
+    new_text = escape(text).replace("_", " ")
+    return f"Python {new_text}"
 
 
-@app.route('/number_template/<int:n>', strict_slashes=False)
-def display_number(n):
-    """When the user access to the /number_template/<int:n>"""
+@app.route("/number/<int:n>", strict_slashes=False)
+def is_number(n):
+    """
+        Response to request URL "number/n" in @app.route()
+        display "n is a number" only if n is an integer
+    """
+    return f"{n} is a number"
+
+
+@app.route("/number_template/<int:n>", strict_slashes=False)
+def template(n):
+    """
+        Display a HTML page only if n is an integer:
+        h1 tag "Number: n" inside the tag BODY
+    """
     return render_template('5-number.html', n=n)
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0')
