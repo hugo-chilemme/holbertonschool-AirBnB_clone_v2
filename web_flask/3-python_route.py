@@ -17,15 +17,13 @@ def display_hbnb():
 
 @app.route('/c/<text>', strict_slashes=False)
 def display_c_is(text):
-    display_text = "C " + text.replace('_', ' ')
-    return display_text
+    return "C " + text.replace('_', ' ')
 
 
 @app.route('/python/', strict_slashes=False)
 @app.route('/python/<text>', strict_slashes=False)
-def display_python_is(text = "is cool"):
-    display_text = "Python " + text.replace('_', ' ')
-    return display_text
+def display_python_is(text="is cool"):
+    return "Python " + text.replace('_', ' ')
 
 
 if __name__ == '__main__':
