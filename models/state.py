@@ -21,5 +21,5 @@ class State(BaseModel, Base):
         my_list = []
         for i in storage.all(City).values():
             if i.state_id == self.id:
-                my_list.append(i)
+                my_list.append(i.to_dict())
         return my_list
