@@ -16,4 +16,7 @@ class State(BaseModel, Base):
 
     def cities(self):
         from models import storage
-        return storage.all(State).values()
+        my_list = []
+        for i in storage.all(State).values():
+            my_list.append(i)
+        return my_list
