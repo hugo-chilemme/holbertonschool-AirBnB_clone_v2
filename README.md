@@ -15,7 +15,7 @@ This is the first step towards building your first full web application: the Air
 - create all unittests to validate all our classes and storage engine
 
 *Create your **Console***:
-
+ 
 - Create your data model
 - Manage (create, update, destroy, etc) objects via a console / command interpreter
 - Store and persist objects to a file (JSON file) The first piece is to manipulate a powerful storage system. This storage engine will give us an abstraction between “My object” and “How they are stored and persisted”. This means: from your console code (the command interpreter itself) and from the front-end and RestAPI you will build later, you won’t have to pay attention (take care) of how your objects are stored.

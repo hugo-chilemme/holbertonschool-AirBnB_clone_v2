@@ -1,137 +1,131 @@
 #!/usr/bin/python3
-import inspect
-import io
 import sys
-import cmd
-import shutil
+import requests
+from lxml import html
+import re
 
-"""
- Cleanup file storage
-"""
-import os
-file_path = "file.json"
-if not os.path.exists(file_path):
-    try:
-        from models.engine.file_storage import FileStorage
-        file_path = FileStorage._FileStorage__file_path
-    except:
-        pass
-if os.path.exists(file_path):
-    os.remove(file_path)
+states = [
+    ('421a55f4-7d82-47d9-b51c-a76916479545', 'stateA', [
+            ('521a55f4-7d82-47d9-b51c-a76916479545', 'cityAA'),
+            ('521a55f4-7d82-47d9-b51c-a76916479546', 'cityAB')
+    ]),
+    ('421a55f4-7d82-47d9-b51c-a76916479546', 'stateB', [
+            ('511a55f4-7d82-47d9-b51c-a76916479546', 'cityBA'),
+            ('511a55f4-7d82-47d9-b51c-a76916479547', 'cityBB')
+    ]),
+    ('421a55f4-7d82-47d9-b52c-a76916479547', 'stateC', [
+            ('521a55f4-7d82-47d9-b52c-a76916479547', 'cityCA'),
+            ('521a55f4-7d82-47d9-b52c-a76916479548', 'cityCB')
+    ]),
+    ('421a55f4-7d82-47d9-b53c-a76916479548', 'stateD', [
+            ('531a55f4-7d82-47d9-b53c-a76916479548', 'cityDA'),
+            ('531a55f4-7d82-47d9-b53c-a76916479549', 'cityDB')
+    ]),
+    ('421a55f4-7d82-47d9-b57c-a76916479549', 'stateE', [
+            ('511a55f4-7d82-47d9-b57c-a76916479549', 'cityEA'),
+            ('511a55f4-7d82-47d9-b57c-a76916479539', 'cityEB')
+    ])
+]
 
-"""
- Backup console file
-"""
-if os.path.exists("tmp_console_main.py"):
-    shutil.copy("tmp_console_main.py", "console.py")
-shutil.copy("console.py", "tmp_console_main.py")
+NO_PROXY = {
+    'no': 'pass',
+}
 
 
-"""
- Updating console to remove "__main__"
-"""
-with open("tmp_console_main.py", "r") as file_i:
-    console_lines = file_i.readlines()
-    with open("console.py", "w") as file_o:
-        in_main = False
-        for line in console_lines:
-            if "__main__" in line:
-                in_main = True
-            elif in_main:
-                if "cmdloop" not in line:
-                    file_o.write(line.lstrip("    ")) 
-            else:
-                file_o.write(line)
+## Request
+page = requests.get('http://localhost:5000/cities_by_states', proxies=NO_PROXY)
+if int(page.status_code) != 200:
+    print("Status fail: {}".format(page.status_code))
+    sys.exit(1)
 
-import console
+## Parsing
+print(page.content)
+tree = html.fromstring(page.content)
+if tree is None:
+    print("Can't parse page")
+    sys.exit(1)
 
-"""
- Create console
-"""
-console_obj = "HBNBCommand"
-for name, obj in inspect.getmembers(console):
-    if inspect.isclass(obj) and issubclass(obj, cmd.Cmd):
-        console_obj = obj
+## H1
+h1_tags = tree.xpath('//body/h1/text()')
+if h1_tags is None or len(h1_tags) == 0:
+    print("H1 tag not found")
+    sys.exit(1)
 
-my_console = console_obj(stdout=io.StringIO(), stdin=io.StringIO())
-my_console.use_rawinput = False
+if not re.search(r".*States.*", h1_tags[0]):
+    print("Title `States` doesn't found")
+    sys.exit(1)
 
-"""
- Exec command
-"""
-def exec_command(my_console, the_command, last_lines = 1):
-    my_console.stdout = io.StringIO()
-    real_stdout = sys.stdout
-    sys.stdout = my_console.stdout
-    my_console.onecmd(the_command)
-    sys.stdout = real_stdout
-    lines = my_console.stdout.getvalue().split("\n")
-    return "\n".join(lines[(-1*(last_lines+1)):-1])
+## LI state ID
+li_tags = list(filter(None, [x.replace(" ", "").strip(" ").strip("\n").strip("\t") for x in tree.xpath('//body/ul/li/text()')]))
+pyprint(li_tags)
 
-"""
- Objects creations
-"""
-state_id_1 = exec_command(my_console, "create State name=\"California\"")
-if state_id_1 is None or state_id_1 == "":
-    print("FAIL: Can't create State 1")
+if li_tags is None or len(li_tags) != 5:
+    print("Doesn't find 5 LI tags (found {})".format(len(li_tags)))
+    sys.exit(1)
+
+for li_tag in li_tags:
+    is_found = False
+    for state_tuple in states:
+        is_found = re.search(r".*{}.*".format(state_tuple[0]), li_tag)
+        if is_found:
+            break
+    if not is_found:
+        print("{} not found".format(li_tag))
+        sys.exit(1)
+            
+## LI state name sorted
+li_tags_b = list(filter(None, [x.replace(" ", "").strip(" ").strip("\n").strip("\t") for x in tree.xpath('//body/ul/li/b/text()')]))
+if li_tags_b is None or len(li_tags_b) != 5:
+    print("Doesn't find 5 LI tags with B tag (found {})".format(len(li_tags_b)))
+    sys.exit(1)
+
+idx = 0
+for li_tag in li_tags_b:
+    if not re.search(r".*{}.*".format(states[idx][1]), li_tag):
+        print("{} not found or not sorted".format(li_tag))
+        sys.exit(1)
+    idx += 1
+
+
+## LI city ID
+li_tags_el = tree.xpath('//body/ul/li')
+if li_tags_el is None or len(li_tags_el) != 5:
+    print("Doesn't find 5 LI tags (found {})".format(len(li_tags_el)))
+    sys.exit(1)
+
+state_idx = 0
+for li_tag_el in li_tags_el:
+    state_name = li_tag_el.xpath("text()")[0]
+    cities = states[state_idx][2]
+    cities_li_tags = list(filter(None, [x.replace(" ", "").strip(" ").strip("\n").strip("\t") for x in li_tag_el.xpath('ul/li/text()')]))
+    if cities_li_tags is None or len(cities_li_tags) != 2:
+        print("Doesn't find 2 LI tags (found {}) for state {}".format(len(cities_li_tags), state_name))
+        sys.exit(1)
+
+    for cities_li_tag in cities_li_tags:
+        is_found = False
+        for city_tuple in cities:
+            is_found = re.search(r".*{}.*".format(city_tuple[0]), cities_li_tag)
+            if is_found:
+                break
+        if not is_found:
+            print("{} not found".format(cities_li_tag))
+            sys.exit(1)
     
-city_id_1 = exec_command(my_console, "create City state_id=\"{}\" name=\"Fremont\"".format(state_id_1))
-if city_id_1 is None or city_id_1 == "":
-    print("FAIL: Can't create City 1")
+            
+    ## LI city name sorted
+    cities_li_tags_b = list(filter(None, [x.replace(" ", "").strip(" ").strip("\n").strip("\t") for x in li_tag_el.xpath('ul/li/b/text()')]))
+    if cities_li_tags_b is None or len(cities_li_tags_b) != 2:
+        print("Doesn't find 2 LI tags with B tag (found {}) for state {}".format(len(cities_li_tags_b), state_name))
+        sys.exit(1)
 
-city_id_2 = exec_command(my_console, "create City state_id=\"{}\" name=\"Napa\"".format(state_id_1))
-if city_id_2 is None or city_id_2 == "":
-    print("FAIL: Can't create City 2")
+    city_idx = 0
+    for cities_li_tag_b in cities_li_tags_b:
+        if not re.search(r".*{}.*".format(cities[city_idx][1]), cities_li_tag_b):
+            print("{} not found or not sorted".format(cities_li_tag_b))
+            sys.exit(1)
+        city_idx += 1
 
-state_id_2 = exec_command(my_console, "create State name=\"California2\"")
-if state_id_2 is None or state_id_2 == "":
-    print("FAIL: Can't create State 2")
-    
-city_id_3 = exec_command(my_console, "create City state_id=\"{}\" name=\"Sonoma\"".format(state_id_2))
-if city_id_3 is None or city_id_3 == "":
-    print("FAIL: Can't create City 3")
-
-
-"""
- Tests
-"""
-from models import storage
-from models.state import State
-
-def wrapper_all_type(m_class):
-    res = {}
-    try:
-        res = storage.all(m_class)
-    except:
-        res = {}
-    if res is None or len(res.keys()) == 0:
-        try:
-            res = storage.all(m_class.__name__)
-        except:
-            res = {}
-    return res
-
-
-all_states = wrapper_all_type(State)
-state_1 = all_states.get(state_id_1)
-if state_1 is None:
-    state_1 = all_states.get("State.{}".format(state_id_1))
-if state_1 is not None:
-    all_cities = state_1.cities
-    if len(all_cities) != 2:
-        print("FAIL: {} cities found instead of 2".format(len(all_cities)))
-
-    city_ids_to_search = [city_id_1, city_id_2]
-    for city in all_cities:
-        if city.id in city_ids_to_search:
-            city_ids_to_search.remove(city.id)
-
-    if len(city_ids_to_search) > 0:
-        print("FAIL: {} missing".format(city_ids_to_search))
-else:
-    print("FAIL: State 1 not found")
-  
+    state_idx += 1
 
 print("OK", end="")
-
-shutil.copy("tmp_console_main.py", "console.py")
